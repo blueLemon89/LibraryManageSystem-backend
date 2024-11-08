@@ -1,5 +1,6 @@
 package lm.libraryManagementSystem.controller;
 
+import lm.libraryManagementSystem.common.Constants;
 import lm.libraryManagementSystem.model.LoginRequest;
 import lm.libraryManagementSystem.model.User;
 import lm.libraryManagementSystem.service.UserService;
@@ -18,6 +19,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:8080")
 public class AuthController {
 
     @Autowired
@@ -30,17 +32,23 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest) {
+    public Map<String, Object> loginUser(@RequestBody LoginRequest loginRequest) {
+        Map<String, Object> result = new HashMap<>();
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(), loginRequest.getPassword()));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            return ResponseEntity.ok("Login successful");
+            result.put("username", loginRequest.getUsername());
+            result.put(Constants.MESSAGE, "successfully logged in");
+            result.put("status", "OK");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login failed");
+            result.put("username", loginRequest.getUsername());
+            result.put(Constants.MESSAGE, "Incorrect username or password. Please try again");
+            result.put("status", "BAD");
         }
+        return result;
     }
 
     @PostMapping("/register")
