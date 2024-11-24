@@ -37,11 +37,13 @@
 
     <select id="isUserExistWithUsername" resultType="int">
         SELECT
-        Count(1)
+            Count(1)
         FROM
-        users
+            users
         WHERE
-        name = #{name} and deleteFlag = 0;
+            name = #{name}
+            or email= #{name}
+            and deleteFlag = 0;
     </select>
 
     <select id="isUserExistWithEmail" resultType="boolean">
@@ -55,9 +57,9 @@
 
     <insert id="insertUser">
         INSERT INTO
-            users(name, password, email, createdBy, lst_updtBy)
+            users(name, password, email, createdBy, lst_updtBy, createdOn, lst_updtOn)
         VALUES
-            (#{name}, #{password}, #{email}, "admin", "admin")
+            (#{name}, #{password}, #{email}, "register", "register", now(), now())
     </insert>
 
     <update id="updateUser">
@@ -67,7 +69,8 @@
         <if test="name != null">name = #{name},</if>
         <if test="password != null">password = #{password},</if>
         <if test="email != null">email = #{email},</if>
-        lst_updtBy = #{lst_updtBy}
+        lst_updtBy = #{lst_updtBy},
+        lst_udptOn = now()
         where
         id = #{id}
         and deleteFlag = 0
@@ -77,7 +80,9 @@
         update
         users
         set
-        deleteFlag = 1
+        deleteFlag = 1,
+        lst_udptOn = now()
+        lst_updtBy = 'admin'
         where id = #{id}
         and deleteFlag = 0
     </update>

@@ -1,5 +1,6 @@
 package lm.libraryManagementSystem.controller;
 
+import ch.qos.logback.core.util.StringUtil;
 import lm.libraryManagementSystem.common.Constants;
 import lm.libraryManagementSystem.model.LoginRequest;
 import lm.libraryManagementSystem.model.User;
@@ -52,20 +53,26 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody User user) {
-        if (userService.isExistUser(user.getName()) != 0) {
-            return new ResponseEntity<>("Username is already taken", HttpStatus.BAD_REQUEST);
+    public Map<String, Object> registerUser(@RequestBody User user) {
+        Map<String, Object> result = new HashMap<>();
+        if (userService.isExistUser(user.getName()) != 0 || userService.isExistUser(user.getEmail()) != 0) {
+            result.put(Constants.MESSAGE, "User already exists");
+            result.put("status", "BAD");
+            return result;
         }
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("name", user.getName());
-        paramMap.put("email", user.getEmail());
-        paramMap.put("password", passwordEncoder.encode(user.getPassword()));
-        userService.insertUser(paramMap);
+        if(StringUtil.isNullOrEmpty(user.getName()) || StringUtil.isNullOrEmpty(user.getEmail()) || StringUtil.isNullOrEmpty(user.getPassword())) {
+            result.put(Constants.MESSAGE, "Please fill all fields");
+            return result;
+        }
+        result.put("name", user.getName());
+        result.put("email", user.getEmail());
+        result.put("password", passwordEncoder.encode(user.getPassword()));
+        result.put("status", "OK");
+        userService.insertUser(result);
 
-        return ResponseEntity.ok("User registered successfully");
+        return result;
     }
 
-    // API Lấy thông tin người dùng hiện tại
     @GetMapping("/current-user")
     public ResponseEntity<User> getCurrentUser() {
         User currentUser = userService.getCurrentUser();
