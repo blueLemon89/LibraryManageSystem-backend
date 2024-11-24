@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="lm.libraryManagementSystem.mapper.UserMapper">
+    <select id="findUserByUsername" resultType="lm.libraryManagementSystem.model.User">
+        SELECT
+            *
+        FROM
+            users
+        WHERE
+            name = #{name} AND deleteFlag = 0
+    </select>
+
+    <select id="findUserById" resultType="lm.libraryManagementSystem.model.User">
+        SELECT
+            *
+        FROM
+            users
+        WHERE
+            id = #{id} AND deleteFlag = 0
+    </select>
+
+    <select id="findRoleByUserId" resultType="lm.libraryManagementSystem.model.User">
+
+    </select>
+
+    <select id="findUserByEmail" resultType="lm.libraryManagementSystem.model.User">
+        SELECT
+            *
+        FROM
+            users
+        WHERE
+            email = #{email} AND deleteFlag = 0
+    </select>
+
+    <select id="isUserExistWithUsername" resultType="int">
+        SELECT
+            Count(1)
+        FROM
+            users
+        WHERE
+            name = #{name}
+            or email= #{name}
+            and deleteFlag = 0;
+    </select>
+
+    <select id="isUserExistWithEmail" resultType="boolean">
+        SELECT
+        1
+        FROM
+        users
+        WHERE
+        email = #{email} and deleteFlag = 0;
+    </select>
+
+    <insert id="insertUser">
+        INSERT INTO
+            users(name, password, email, createdBy, lst_updtBy, createdOn, lst_updtOn)
+        VALUES
+            (#{name}, #{password}, #{email}, "register", "register", now(), now())
+    </insert>
+
+    <update id="updateUser">
+       update
+        users
+        set
+        <if test="name != null">name = #{name},</if>
+        <if test="password != null">password = #{password},</if>
+        <if test="email != null">email = #{email},</if>
+        lst_updtBy = #{lst_updtBy},
+        lst_udptOn = now()
+        where
+        id = #{id}
+        and deleteFlag = 0
+    </update>
+
+    <update id="deleteUser">
+        update
+        users
+        set
+        deleteFlag = 1,
+        lst_udptOn = now()
+        lst_updtBy = 'admin'
+        where id = #{id}
+        and deleteFlag = 0
+    </update>
+</mapper>
